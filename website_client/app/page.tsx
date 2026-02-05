@@ -1,65 +1,162 @@
-import Image from "next/image";
+// app/page.tsx
 
-export default function Home() {
+import { renderSections } from "@/renderer/renderSections";
+import { Page } from "@/types/page";
+
+// DYNAMIC THEMING: 
+// To use a custom theme, add a "theme" property to pageData
+// Example:
+// import { blueTheme, purpleTheme } from "@/types/theme";
+// const pageData: Page = {
+//   theme: blueTheme,  // or purpleTheme, or custom theme from backend
+//   sections: [...]
+// };
+
+const pageData: Page = {
+  sections: [
+    {
+      type: "NavBar",
+      props: {
+        logoText: "AI Builder",
+        links: [
+          { label: "Home", href: "#" },
+          { label: "Contact", href: "#contact" },
+        ],
+      },
+    },
+    {
+      type: "Hero",
+      props: {
+        title: "AI Website Builder",
+        subtitle: "Build websites using simple prompts",
+        ctaText: "Get Started",
+      },
+    },
+    {
+      type: "About",
+      props: {
+        heading: "What We Do",
+        description:
+          "We help users build websites using AI-generated structures combined with a powerful visual editor.",
+        imageUrl: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1000"
+      },
+    },
+    {
+      type: "Features",
+      props: {
+        heading: "Our Approach",
+        items: [
+          {
+            title: "Optimize Office Relocations and Measurable Human Impact",
+            bullets: [
+              "Calculate the commutes from key executives to team members",
+              "Identify the best office location for the entire workforce",
+              "Accurate and efficient analysis that reduces expenses and maximizes savings during company relocations",
+              "Deliver measurable results on sustainability and employee experience",
+            ],
+            imageUrl: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1000&auto=format&fit=crop",
+          },
+          {
+            title: "Enhance Employee Incentives & Initiatives",
+            bullets: [
+              "Sustainable Mobility Allowance and transport subsidies",
+              "Support Remote Work programs",
+              "Encourage all forms of transport: walking, car, bike, metro, bus",
+            ],
+            imageUrl: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1000&auto=format&fit=crop",
+          },
+          {
+            title: "Boost Employee Satisfaction & Retention",
+            bullets: [
+              "Improve daily commute comfort",
+              "Reduce stress, promote well-being",
+              "Increase loyalty and long-term talent retention",
+            ],
+            imageUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1000&auto=format&fit=crop",
+          },
+        ],
+      },
+    },
+    {
+      type: "Gallery",
+      props: {
+        heading: "Our Work",
+        images: [
+          {
+            src: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1000&auto=format&fit=crop",
+            alt: "Collaborative Workspace",
+          },
+          {
+            src: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1000&auto=format&fit=crop",
+            alt: "Modern Office",
+          },
+          {
+            src: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1000&auto=format&fit=crop",
+            alt: "Team Meeting",
+          },
+          {
+            src: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1000&auto=format&fit=crop",
+            alt: "Office Interior",
+          },
+        ],
+      },
+    },
+    {
+      type: "Testimonials",
+      props: {
+        heading: "Loved by Users",
+        items: [
+          {
+            name: "Aman Sharma",
+            role: "Startup Founder",
+            message:
+              "This platform helped us launch our website in minutes.",
+          },
+          {
+            name: "Priya Verma",
+            role: "Designer",
+            message:
+              "The CMS is super easy to use and very flexible.",
+          },
+          {
+            name: "Rahul Mehta",
+            role: "Developer",
+            message:
+              "AI + structured components is a powerful combo.",
+          },
+        ],
+      },
+    },
+    {
+      type: "Contact",
+      props: {
+        heading: "Get in Touch",
+        email: "hello@aibuilder.com",
+        phone: "+91 98765 43210",
+        address: "Mumbai, India",
+      },
+    },
+    {
+      type: "CTA",
+      props: {
+        heading: "Ready to build your website?",
+        subheading: "Start creating your site using AI in minutes.",
+        buttonText: "Start Now",
+      },
+    }, {
+      type: "Footer",
+      props: {
+        text: "© 2026 AI Website Builder. All rights reserved.",
+      },
+    },
+  ],
+};
+
+
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main>
+      {renderSections({ sections: pageData.sections })}
+    </main>
   );
 }

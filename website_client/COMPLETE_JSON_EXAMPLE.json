@@ -1,0 +1,190 @@
+{
+  "pageId": "example-full-page",
+  "slug": "home",
+  "title": "Complete Website Example",
+  "theme": {
+    "name": "Tech Green Theme",
+    "colors": {
+      "primary": "#4ADE80",
+      "primaryDark": "#22C55E",
+      "primaryLight": "#86EFAC",
+      "background": "#1B243F",
+      "backgroundAlt": "#0F172A",
+      "backgroundLight": "#FFFFFF",
+      "text": "#FFFFFF",
+      "textLight": "#9CA3AF",
+      "textDark": "#1B243F",
+      "accent": "#4ADE80",
+      "success": "#22C55E",
+      "warning": "#F59E0B",
+      "error": "#EF4444"
+    }
+  },
+  "sections": [
+    {
+      "type": "NavBar",
+      "props": {
+        "logoText": "MyBrand",
+        "links": [
+          { "label": "Home", "href": "#" },
+          { "label": "About", "href": "#about" },
+          { "label": "Services", "href": "#services" },
+          { "label": "Gallery", "href": "#gallery" },
+          { "label": "Testimonials", "href": "#testimonials" },
+          { "label": "Contact", "href": "#contact" }
+        ],
+        "demoButtonText": "Get Started"
+      }
+    },
+    {
+      "type": "Hero",
+      "props": {
+        "title": "AI Website Builder",
+        "subtitle": "Build stunning websites using simple prompts",
+        "ctaText": "Start Building",
+        "tagline": "Optimizing Efficiency, Well-Being, Sustainability, and Environmental Impact."
+      }
+    },
+    {
+      "type": "About",
+      "props": {
+        "heading": "About Our Platform",
+        "description": "We are revolutionizing the way websites are built. Our AI-powered platform allows anyone to create professional, responsive websites without writing a single line of code. Simply describe what you want, and watch your vision come to life.\n\nWith our cutting-edge technology, you can customize every aspect of your website, from colors to content, all through an intuitive interface.",
+        "imageUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop"
+      }
+    },
+    {
+      "type": "Features",
+      "props": {
+        "heading": "Our Services",
+        "items": [
+          {
+            "title": "AI-Powered Design",
+            "bullets": [
+              "Intelligent layout generation",
+              "Smart color scheme suggestions",
+              "Automatic responsive design",
+              "Content optimization"
+            ],
+            "imageUrl": "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1000&auto=format&fit=crop"
+          },
+          {
+            "title": "Custom Branding",
+            "bullets": [
+              "Dynamic color theming",
+              "Logo integration",
+              "Brand consistency",
+              "Typography control"
+            ],
+            "imageUrl": "https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=1000&auto=format&fit=crop"
+          },
+          {
+            "title": "Easy Management",
+            "bullets": [
+              "Drag-and-drop editor",
+              "Real-time preview",
+              "One-click publishing",
+              "Version control"
+            ],
+            "imageUrl": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop"
+          }
+        ],
+        "defaultImages": {
+          "0": "https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=1000&auto=format&fit=crop",
+          "1": "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1000&auto=format&fit=crop",
+          "2": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1000&auto=format&fit=crop"
+        }
+      }
+    },
+    {
+      "type": "Gallery",
+      "props": {
+        "heading": "Our Work",
+        "images": [
+          {
+            "src": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1000&auto=format&fit=crop",
+            "alt": "Project 1"
+          },
+          {
+            "src": "https://images.unsplash.com/photo-1547658719-da2b51169166?q=80&w=1000&auto=format&fit=crop",
+            "alt": "Project 2"
+          },
+          {
+            "src": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1000&auto=format&fit=crop",
+            "alt": "Project 3"
+          },
+          {
+            "src": "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?q=80&w=1000&auto=format&fit=crop",
+            "alt": "Project 4"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Testinomials",
+      "props": {
+        "heading": "What Our Clients Say",
+        "items": [
+          {
+            "name": "Sarah Johnson",
+            "role": "CEO, TechStart",
+            "text": "This platform transformed how we build websites. What used to take weeks now takes hours!",
+            "rating": 5
+          },
+          {
+            "name": "Michael Chen",
+            "role": "Founder, DesignCo",
+            "text": "The AI suggestions are incredibly smart. It's like having a professional designer on demand.",
+            "rating": 5
+          },
+          {
+            "name": "Emily Rodriguez",
+            "role": "Marketing Director",
+            "text": "We've built 10+ landing pages with this tool. The ROI has been phenomenal.",
+            "rating": 5
+          },
+          {
+            "name": "David Kim",
+            "role": "Startup Founder",
+            "text": "As a non-technical founder, this tool empowered me to create our entire web presence.",
+            "rating": 5
+          }
+        ]
+      }
+    },
+    {
+      "type": "Contact",
+      "props": {
+        "heading": "Get In Touch",
+        "email": "hello@example.com",
+        "phone": "+1 (555) 123-4567",
+        "address": "123 Tech Street, San Francisco, CA 94102",
+        "terminal": {
+          "prompt": "root@webify:~$",
+          "command": "./initiate_contact.sh",
+          "loadingText": "Loading contact protocols..."
+        }
+      }
+    },
+    {
+      "type": "CTA",
+      "props": {
+        "heading": "Ready to Build Your Dream Website?",
+        "subheading": "Join thousands of satisfied customers who've transformed their online presence",
+        "buttonText": "Start Free Trial"
+      }
+    },
+    {
+      "type": "Footer",
+      "props": {
+        "text": "© 2026 MyBrand. All rights reserved.",
+        "socialLinks": [
+          { "label": "Github", "href": "https://github.com" },
+          { "label": "Twitter", "href": "https://twitter.com" },
+          { "label": "LinkedIn", "href": "https://linkedin.com" }
+        ],
+        "systemStatusText": "SYSTEM STATUS: OPERATIONAL"
+      }
+    }
+  ]
+}
