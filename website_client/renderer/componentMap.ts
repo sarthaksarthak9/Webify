@@ -12,13 +12,13 @@ import { Footer } from "@/components/Footer";
 
 // Maps section type → React component
 export const componentMap: Record<string, any> = {
-  NavBar,
-  Hero,
-  About,
-  Features,
-  Gallery,
-  Testimonials,
-  Contact,
-  CTA,
-  Footer,
+  navbar: NavBar,
+  hero: Hero,
+  about: About,
+  features: Features,
+  gallery: Gallery,
+  testimonials: Testimonials,
+  contact: Contact,
+  cta: CTA,
+  footer: Footer,
 };
