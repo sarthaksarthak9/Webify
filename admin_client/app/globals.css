@@ -1,26 +1,164 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Payload CMS-inspired Color Palette */
+  --admin-bg-primary: #0A0A0A;
+  --admin-bg-secondary: #121212;
+  --admin-bg-tertiary: #1A1A1A;
+  --admin-bg-hover: #1E1E1E;
+  --admin-accent: #FFFFFF;
+  --admin-accent-hover: #E5E5E5;
+  --admin-text: #FFFFFF;
+  --admin-text-secondary: #CCCCCC;
+  --admin-text-muted: #888888;
+  --admin-text-subtle: #555555;
+  --admin-border: #262626;
+  --admin-border-light: #1E1E1E;
+  --admin-border-subtle: #1A1A1A;
+  
+  /* Status Colors */
+  --admin-success: #10B981;
+  --admin-warning: #F59E0B;
+  --admin-error: #EF4444;
+  --admin-info: #3B82F6;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--admin-bg-primary);
+  color: var(--admin-text);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar - Payload CMS style */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--admin-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--admin-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--admin-bg-hover);
+}
+
+/* Smooth transitions - excludes transform to prevent layout issues */
+* {
+  transition-property: background-color, border-color, color, opacity;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
+}
+
+/* Focus styles - Payload-inspired */
+*:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.2);
+  outline-offset: 2px;
+}
+
+/* Input autofill styles */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--admin-text);
+  -webkit-box-shadow: 0 0 0px 1000px #0A0A0A inset !important;
+  -webkit-transition: background-color 5000s ease-in-out 0s;
+  border: 2px solid #262626 !important;
+  color: white;
+}
+
+input:-webkit-autofill::first-line {
+  font-size: 1rem;
+}
+
+/* Selection */
+::selection {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--admin-text);
+}
+
+/* Button styles - allow custom styling on buttons */
+button {
+  font: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Only reset specific button types */
+button.no-style {
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.3);
+  outline-offset: 2px;
+}
+
+/* Remove input number arrows */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Disable text selection on UI elements */
+button,
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+@layer components {
+  .admin-container {
+    @apply p-4 sm:p-6 md:p-8;
+  }
+  
+  .admin-spacing {
+    @apply space-y-6;
+  }
+  
+  .admin-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6;
+  }
+  
+  .admin-grid-2 {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6;
+  }
+  
+  .admin-flex-center {
+    @apply flex items-center justify-center;
+  }
+  
+  .admin-flex-between {
+    @apply flex items-center justify-between;
+  }
 }
