@@ -23,7 +23,7 @@ export function renderSections({ sections }: Props) {
           return null;
         }
 
-        return <Component key={index} {...section.props} />;
+        return <Component key={section.id || index} {...section.content} />;
       })}
     </>
   );

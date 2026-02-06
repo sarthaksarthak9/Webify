@@ -1,8 +1,11 @@
 import { Theme } from "./theme";
 
 export type Section = {
+    id?: string;
     type: string;
-    props: Record<string, any>;
+    title?: string;
+    content: Record<string, any>;
+    order?: number;
 }
 
 export type Page = {
