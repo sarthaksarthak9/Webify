@@ -1,6 +1,7 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
+import { useParams } from "next/navigation";
 import {
 	DndContext,
 	closestCenter,
@@ -20,6 +21,8 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Section } from "@/types/website";
 import { SortableSection } from "./SortableSection";
+import { SectionEditorModal } from "./SectionEditorModal";
+import { SectionTypeSelector } from "./SectionTypeSelector";
 import { toast } from "sonner";
 
 interface SectionsListProps {
@@ -29,8 +32,10 @@ interface SectionsListProps {
 
 export function SectionsList({ sections, onUpdate }: SectionsListProps) {
 	const params = useParams();
-	const router = useRouter();
-	const slug = params?.slug as string;
+	const [editingSection, setEditingSection] = useState<Section | null>(null);
+	const [editingIndex, setEditingIndex] = useState<number | null>(null);
+	const [isAddingNew, setIsAddingNew] = useState(false);
+	const [showTypeSelector, setShowTypeSelector] = useState(false);
 
 	const sensors = useSensors(
 		useSensor(PointerSensor),
@@ -49,7 +54,17 @@ export function SectionsList({ sections, onUpdate }: SectionsListProps) {
 			const newIndex = sections.findIndex(
 				(_, i) => i.toString() === over.id,
 			);
-			onUpdate(arrayMove(sections, oldIndex, newIndex));
+
+			// Reorder the sections array
+			const reorderedSections = arrayMove(sections, oldIndex, newIndex);
+
+			// Update the order field for each section to match its new array position
+			const sectionsWithUpdatedOrder = reorderedSections.map((section, index) => ({
+				...section,
+				order: index,
+			}));
+
+			onUpdate(sectionsWithUpdatedOrder);
 			toast.success("Section moved successfully");
 		}
 	};
@@ -62,12 +77,78 @@ export function SectionsList({ sections, onUpdate }: SectionsListProps) {
 		}
 	};
 
-	const handleEdit = (section: Section) => {
-		router.push(`/dashboard/websites/${slug}/sections/${section.id}`);
+	const handleEdit = (section: Section, index: number) => {
+		setEditingSection(section);
+		setEditingIndex(index);
+		setIsAddingNew(false);
 	};
 
 	const handleAddSection = () => {
-		router.push(`/dashboard/websites/${slug}/sections/new`);
+		// Show the section type selector instead of creating a default section
+		setShowTypeSelector(true);
+	};
+
+	const handleSectionTypeSelected = (type: string) => {
+		// Create a new section with the selected type
+		const newSection: Section = {
+			id: `section_${Date.now()}`,
+			type: type,
+			title: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Section`,
+			content: getDefaultContentForType(type),
+			order: sections.length,
+		};
+		setEditingSection(newSection);
+		setEditingIndex(null);
+		setIsAddingNew(true);
+	};
+
+	const getDefaultContentForType = (type: string): Record<string, any> => {
+		// Provide sensible defaults based on section type
+		switch (type) {
+			case 'hero':
+				return { heading: 'Welcome', subheading: 'Discover something amazing' };
+			case 'navbar':
+				return { logo: 'Logo', links: [] };
+			case 'features':
+				return { heading: 'Features', items: [] };
+			case 'gallery':
+				return { heading: 'Gallery', images: [] };
+			case 'about':
+				return { heading: 'About Us', description: '' };
+			case 'contact':
+				return { heading: 'Contact Us', email: '', phone: '' };
+			case 'testimonials':
+				return { heading: 'Testimonials', items: [] };
+			case 'cta':
+				return { heading: 'Get Started', buttonText: 'Sign Up' };
+			case 'footer':
+				return { copyright: '© 2024', links: [] };
+			default:
+				return {};
+		}
+	};
+
+	const handleSaveSection = (updatedSection: Section) => {
+		if (isAddingNew) {
+			// Add new section
+			onUpdate([...sections, updatedSection]);
+			toast.success("Section added successfully");
+		} else if (editingIndex !== null) {
+			// Update existing section
+			const newSections = [...sections];
+			newSections[editingIndex] = updatedSection;
+			onUpdate(newSections);
+			toast.success("Section updated successfully");
+		}
+		setEditingSection(null);
+		setEditingIndex(null);
+		setIsAddingNew(false);
+	};
+
+	const handleCloseModal = () => {
+		setEditingSection(null);
+		setEditingIndex(null);
+		setIsAddingNew(false);
 	};
 
 	return (
@@ -134,7 +215,7 @@ export function SectionsList({ sections, onUpdate }: SectionsListProps) {
 										id={index.toString()}
 										section={section}
 										index={index}
-										onEdit={() => handleEdit(section)}
+										onEdit={() => handleEdit(section, index)}
 										onDelete={() => handleDelete(index)}
 									/>
 								))}
@@ -143,6 +224,24 @@ export function SectionsList({ sections, onUpdate }: SectionsListProps) {
 					</DndContext>
 				)}
 			</Card>
+
+			{/* Section Editor Modal */}
+			{editingSection && (
+				<SectionEditorModal
+					section={editingSection}
+					onSave={handleSaveSection}
+					onClose={handleCloseModal}
+				/>
+			)}
+
+			{/* Section Type Selector Modal */}
+			{showTypeSelector && (
+				<SectionTypeSelector
+					existingSections={sections.map(s => s.type)}
+					onSelect={handleSectionTypeSelected}
+					onClose={() => setShowTypeSelector(false)}
+				/>
+			)}
 		</div>
 	);
 }

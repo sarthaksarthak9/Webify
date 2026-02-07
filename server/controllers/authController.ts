@@ -120,6 +120,9 @@ export const getProfile = async (
                 email: user.email,
                 name: user.name,
                 avatar: user.avatar,
+                company: user.company,
+                role: user.role,
+                bio: user.bio,
                 createdAt: user.createdAt,
             },
         });
@@ -139,12 +142,12 @@ export const updateProfile = async (
     next: NextFunction
 ) => {
     try {
-        const { name, avatar } = req.body;
+        const { name, avatar, company, role, bio } = req.body;
 
         // Find and update user
         const user = await User.findOneAndUpdate(
             { userId: req.user.userId },
-            { name, avatar },
+            { name, avatar, company, role, bio },
             { new: true, runValidators: true }
         );
 
@@ -160,6 +163,9 @@ export const updateProfile = async (
                 email: user.email,
                 name: user.name,
                 avatar: user.avatar,
+                company: user.company,
+                role: user.role,
+                bio: user.bio,
             },
         });
     } catch (error) {

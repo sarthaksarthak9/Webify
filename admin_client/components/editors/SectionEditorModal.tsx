@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Section } from "@/types/website";
@@ -18,11 +18,17 @@ export function SectionEditorModal({
 }: SectionEditorModalProps) {
 	const [editedSection, setEditedSection] = useState<Section>(section);
 
-	const handlePropChange = (key: string, value: any) => {
+	// Reset the edited section when the section prop changes
+	// This ensures that if you cancel and reopen, you get a fresh copy
+	useEffect(() => {
+		setEditedSection(section);
+	}, [section]);
+
+	const handleContentChange = (key: string, value: any) => {
 		setEditedSection({
 			...editedSection,
-			props: {
-				...editedSection.props,
+			content: {
+				...editedSection.content,
 				[key]: value,
 			},
 		});
@@ -32,15 +38,15 @@ export function SectionEditorModal({
 		onSave(editedSection);
 	};
 
-	const renderPropEditor = (key: string, value: any) => {
-		// Handle different types of values
+	const renderContentEditor = (key: string, value: any) => {
+		// Only render editable types (strings and numbers)
 		if (typeof value === "string") {
 			return (
 				<Input
 					key={key}
 					label={key.charAt(0).toUpperCase() + key.slice(1)}
 					value={value}
-					onChange={(e) => handlePropChange(key, e.target.value)}
+					onChange={(e) => handleContentChange(key, e.target.value)}
 				/>
 			);
 		}
@@ -53,43 +59,13 @@ export function SectionEditorModal({
 					label={key.charAt(0).toUpperCase() + key.slice(1)}
 					value={value}
 					onChange={(e) =>
-						handlePropChange(key, parseFloat(e.target.value))
+						handleContentChange(key, parseFloat(e.target.value))
 					}
 				/>
 			);
 		}
 
-		if (Array.isArray(value)) {
-			return (
-				<div key={key} className="space-y-2">
-					<label className="block text-sm font-medium text-[var(--admin-text)]">
-						{key.charAt(0).toUpperCase() + key.slice(1)}
-					</label>
-					<div className="p-3 bg-[var(--admin-bg-tertiary)] rounded-lg border border-[var(--admin-border)]">
-						<p className="text-sm text-[var(--admin-text-muted)]">
-							Array with {value.length} items (advanced editing
-							coming soon)
-						</p>
-					</div>
-				</div>
-			);
-		}
-
-		if (typeof value === "object" && value !== null) {
-			return (
-				<div key={key} className="space-y-2">
-					<label className="block text-sm font-medium text-[var(--admin-text)]">
-						{key.charAt(0).toUpperCase() + key.slice(1)}
-					</label>
-					<div className="p-3 bg-[var(--admin-bg-tertiary)] rounded-lg border border-[var(--admin-border)]">
-						<p className="text-sm text-[var(--admin-text-muted)]">
-							Object (advanced editing coming soon)
-						</p>
-					</div>
-				</div>
-			);
-		}
-
+		// Don't render arrays, objects, or other complex types
 		return null;
 	};
 
@@ -130,9 +106,26 @@ export function SectionEditorModal({
 
 				{/* Content */}
 				<div className="flex-1 overflow-y-auto p-8 space-y-6">
-					{Object.entries(editedSection.props ?? {}).map(([key, value]) =>
-						renderPropEditor(key, value),
-					)}
+					{(() => {
+						const editableFields = Object.entries(editedSection.content ?? {}).filter(
+							([key, value]) => typeof value === 'string' || typeof value === 'number'
+						);
+
+						if (editableFields.length === 0) {
+							return (
+								<div className="text-center py-12">
+									<p className="text-[var(--admin-text-muted)]">
+										No simple text fields available for editing.
+									</p>
+									<p className="text-xs text-[var(--admin-text-muted)] mt-2">
+										This section contains complex data that requires advanced editing.
+									</p>
+								</div>
+							);
+						}
+
+						return editableFields.map(([key, value]) => renderContentEditor(key, value));
+					})()}
 				</div>
 
 				{/* Footer */}

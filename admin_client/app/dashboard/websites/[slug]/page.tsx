@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Website } from "@/types/website";
-import { getWebsiteBySlug, updateWebsite } from "@/lib/mockData";
+import { websiteService } from "@/services/api";
 import { SectionsList } from "@/components/editors/SectionsList";
 import { toast } from "sonner";
 
@@ -15,23 +14,27 @@ type Tab = "metadata" | "sections" | "preview";
 
 export default function WebsiteEditorPage() {
 	const params = useParams();
+	const router = useRouter();
 	const slug = params?.slug as string;
 
-	const [website, setWebsite] = useState<Website | null>(null);
+	const [website, setWebsite] = useState<any>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSaving, setIsSaving] = useState(false);
 	const [activeTab, setActiveTab] = useState<Tab>("metadata");
 	const [hasChanges, setHasChanges] = useState(false);
 
 	useEffect(() => {
-		loadWebsite();
+		if (slug) {
+			loadWebsite();
+		}
 	}, [slug]);
 
 	const loadWebsite = async () => {
 		setIsLoading(true);
 		try {
-			const data = await getWebsiteBySlug(slug);
-			setWebsite(data);
+			const data = await websiteService.getById(slug); // Uses /websites/:slug
+			const siteData = data.data || data; // Handle potential wrapper
+			setWebsite(siteData);
 		} catch (error) {
 			console.error("Failed to load website:", error);
 			toast.error("Failed to load website");
@@ -45,15 +48,36 @@ export default function WebsiteEditorPage() {
 
 		setIsSaving(true);
 		try {
-			await updateWebsite(slug, website);
+			// Remove internal fields if necessary, or just send the whole object
+			// The backend updates fields that are present
+			const updateData = {
+				title: website.title,
+				description: website.description,
+				theme: website.theme,
+				sections: website.sections,
+				status: website.status,
+				deploymentUrl: website.deploymentUrl,
+			};
+
+			await websiteService.update(slug, updateData);
 			setHasChanges(false);
 			toast.success("Website saved successfully!");
+
+			// Refresh data to get any server-side updates
+			// loadWebsite(); 
 		} catch (error) {
 			console.error("Failed to save website:", error);
 			toast.error("Failed to save website");
 		} finally {
 			setIsSaving(false);
 		}
+	};
+
+	const handleCancel = () => {
+		// Reload the website to discard changes
+		loadWebsite();
+		setHasChanges(false);
+		toast.info("Changes discarded");
 	};
 
 	const updateMetadata = (field: string, value: any) => {
@@ -134,13 +158,22 @@ export default function WebsiteEditorPage() {
 										You have unsaved changes
 									</span>
 								</div>
-								<Button
-									onClick={handleSave}
-									isLoading={isSaving}
-									className="w-full sm:w-auto"
-								>
-									Save Changes
-								</Button>
+								<div className="flex gap-3 w-full sm:w-auto">
+									<Button
+										variant="ghost"
+										onClick={handleCancel}
+										className="flex-1 sm:flex-initial"
+									>
+										Cancel
+									</Button>
+									<Button
+										onClick={handleSave}
+										isLoading={isSaving}
+										className="flex-1 sm:flex-initial"
+									>
+										Save Changes
+									</Button>
+								</div>
 							</div>
 						</Card>
 					)}
@@ -227,7 +260,7 @@ export default function WebsiteEditorPage() {
 												<div className="flex gap-2">
 													<input
 														type="color"
-														value={value}
+														value={value as string}
 														onChange={(e) =>
 															updateThemeColor(
 																key,
@@ -237,7 +270,7 @@ export default function WebsiteEditorPage() {
 														className="w-12 h-10 rounded cursor-pointer border border-[var(--admin-border)]"
 													/>
 													<Input
-														value={value}
+														value={value as string}
 														onChange={(e) =>
 															updateThemeColor(
 																key,

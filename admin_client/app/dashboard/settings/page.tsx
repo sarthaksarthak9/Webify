@@ -1,38 +1,76 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { toast } from "sonner";
+import { authService } from "@/services/api";
 
 export default function SettingsPage() {
 	const router = useRouter();
 	const [isEditing, setIsEditing] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
+	const [isLoading, setIsLoading] = useState(true);
 
-	// Mock user data - replace with actual user data from context/API
+	// User data state
 	const [userData, setUserData] = useState({
-		name: "Yash Mittal",
-		email: "yash@gmail.com",
-		company: "Webify Inc.",
-		role: "Admin",
-		bio: "Building amazing websites with AI",
-		avatar: "",
+		name: "",
+		email: "",
+		company: "Webify Inc.", // Default or mock
+		role: "User", // Default
 	});
 
 	const [editData, setEditData] = useState({ ...userData });
 
+	useEffect(() => {
+		loadProfile();
+	}, []);
+
+	const loadProfile = async () => {
+		setIsLoading(true);
+		try {
+			const response = await authService.getProfile();
+			if (response.success && response.data) {
+				const user = response.data;
+				setUserData({
+					name: user.name || "",
+					email: user.email || "",
+					company: user.company || "Webify Inc.",
+					role: user.role || "User",
+				});
+				setEditData({
+					name: user.name || "",
+					email: user.email || "",
+					company: user.company || "Webify Inc.",
+					role: user.role || "User",
+				});
+			}
+		} catch (error) {
+			console.error("Failed to load profile:", error);
+			toast.error("Failed to load profile data");
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
 	const handleSave = async () => {
 		setIsSaving(true);
 		try {
-			// Simulate API call
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-			setUserData(editData);
-			setIsEditing(false);
-			toast.success("Profile updated successfully!");
+			const response = await authService.updateProfile({
+				name: editData.name,
+				company: editData.company,
+				role: editData.role,
+			});
+
+			if (response.success) {
+				setUserData(editData);
+				setIsEditing(false);
+				toast.success("Profile updated successfully!");
+			}
 		} catch (error) {
+			console.error("Failed to update profile:", error);
 			toast.error("Failed to update profile");
 		} finally {
 			setIsSaving(false);
@@ -99,14 +137,6 @@ export default function SettingsPage() {
 										</div>
 									</div>
 
-									{/* Bio */}
-									{userData.bio && (
-										<div>
-											<label className="block text-sm font-medium text-gray-400 mb-2">Bio</label>
-											<p className="text-white">{userData.bio}</p>
-										</div>
-									)}
-
 									{/* Details Grid */}
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-800">
 										<div>
@@ -130,21 +160,6 @@ export default function SettingsPage() {
 							) : (
 								// Edit Mode
 								<div className="space-y-6">
-									<div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 pb-6 border-b border-gray-800">
-										<div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold">
-											{editData.name.split(' ').map(n => n[0]).join('')}
-										</div>
-										<div className="flex-1 text-center sm:text-left w-full">
-											<p className="text-sm text-gray-400 mb-2">Profile Picture</p>
-											<Button variant="secondary" className="w-full sm:w-auto">
-												<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-												</svg>
-												Upload Image
-											</Button>
-										</div>
-									</div>
-
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<Input
 											label="Full Name"
@@ -170,17 +185,6 @@ export default function SettingsPage() {
 											value={editData.role}
 											onChange={(e) => setEditData({ ...editData, role: e.target.value })}
 											placeholder="Admin"
-										/>
-									</div>
-
-									<div>
-										<label className="block text-sm font-medium text-white mb-2">Bio</label>
-										<textarea
-											value={editData.bio}
-											onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
-											placeholder="Tell us about yourself..."
-											rows={3}
-											className="w-full px-4 py-3 rounded-lg border-2 border-gray-700 bg-gray-900 text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none"
 										/>
 									</div>
 

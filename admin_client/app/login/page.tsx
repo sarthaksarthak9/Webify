@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { authService } from "@/services/api";
 
 export default function LoginPage() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
-	const { login } = useAuth();
+	// const { login } = useAuth(); // We might use this later if we update context, but for now we handle it manually or via service
 	const router = useRouter();
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -17,15 +18,28 @@ export default function LoginPage() {
 		setError("");
 		setIsLoading(true);
 
-		// Simulate network delay for better UX
-		await new Promise((resolve) => setTimeout(resolve, 500));
+		try {
+			// Call the login API using the service
+			const data = await authService.login(email, password);
 
-		const success = login(email, password);
+			// Store token and user info
+			if (typeof window !== "undefined") {
+				localStorage.setItem("token", data.token);
+				if (data.user) {
+					localStorage.setItem("user", JSON.stringify(data.user));
+				}
+			}
 
-		if (success) {
+			// Redirect to dashboard
 			router.push("/dashboard");
-		} else {
-			setError("Invalid email or password");
+		} catch (err: any) {
+			// Axios errors have response.data.message usually
+			const errorMessage =
+				err.response?.data?.message ||
+				err.message ||
+				"Invalid email or password";
+			setError(errorMessage);
+		} finally {
 			setIsLoading(false);
 		}
 	};
@@ -132,32 +146,7 @@ export default function LoginPage() {
 					</form>
 
 					{/* Demo Credentials */}
-					<div className="mt-6 pt-6 border-t border-[#1E1E1E]">
-						<div className="flex items-start gap-2 p-3 rounded-md bg-white/5">
-							<svg
-								className="w-4 h-4 text-[#888888] mt-0.5 flex-shrink-0"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-								/>
-							</svg>
-							<div className="text-xs">
-								<p className="text-[#888888]">
-									<span className="text-white font-medium">
-										Demo credentials:
-									</span>
-									<br />
-									yash@gmail.com / 123456
-								</p>
-							</div>
-						</div>
-					</div>
+
 				</div>
 
 				{/* Footer */}

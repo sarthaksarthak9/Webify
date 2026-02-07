@@ -76,6 +76,15 @@ router.put(
             .optional()
             .isURL()
             .withMessage('Avatar must be a valid URL'),
+        body('company')
+            .optional()
+            .trim(),
+        body('role')
+            .optional()
+            .trim(),
+        body('bio')
+            .optional()
+            .trim(),
     ],
     validate,
     updateProfile
