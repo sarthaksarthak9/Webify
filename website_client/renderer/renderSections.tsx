@@ -1,6 +1,7 @@
 // renderer/renderSections.tsx
 
 import { componentMap } from "./componentMap";
+import { mapSectionData } from "./dataMapper";
 import { Section } from "@/types/page";
 
 type Props = {
@@ -23,7 +24,10 @@ export function renderSections({ sections }: Props) {
           return null;
         }
 
-        return <Component key={section.id || index} {...section.content} />;
+        // Map backend data format to component props format
+        const mappedProps = mapSectionData(section.type, section.content || {});
+
+        return <Component key={section.id || index} {...mappedProps} />;
       })}
     </>
   );

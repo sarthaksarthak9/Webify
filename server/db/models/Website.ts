@@ -243,7 +243,7 @@ const sectionSchema = new Schema<ISection>(
             required: [true, 'Section type is required'],
             trim: true,
             enum: {
-                values: ['hero', 'features', 'gallery', 'about', 'contact', 'testimonials', 'cta', 'footer'],
+                values: ['navbar', 'hero', 'features', 'gallery', 'about', 'contact', 'testimonials', 'cta', 'footer'],
                 message: 'Invalid section type',
             },
         },

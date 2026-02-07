@@ -69,7 +69,7 @@ router.post(
             .withMessage('Sections must be an array'),
         body('sections.*.type')
             .optional()
-            .isIn(['hero', 'features', 'gallery', 'about', 'contact', 'testimonials', 'cta', 'footer'])
+            .isIn(['navbar', 'hero', 'features', 'gallery', 'about', 'contact', 'testimonials', 'cta', 'footer'])
             .withMessage('Invalid section type'),
         body('sections.*.title')
             .optional()

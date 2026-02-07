@@ -9,11 +9,12 @@ const DEFAULT_ABOUT_IMAGE = "https://images.unsplash.com/photo-1544620347-c4fd4a
 
 type AboutProps = {
     heading?: string;
-    description: string;
+    description?: string;
     imageUrl?: string;
+    stats?: Array<{ label: string; value: string }>;
 };
 
-export function About({ heading = "About Us", description, imageUrl }: AboutProps) {
+export function About({ heading = "About Us", description, imageUrl, stats }: AboutProps) {
     const containerRef = useRef<HTMLElement>(null);
 
     // Track scroll progress for the SVGs
@@ -79,10 +80,32 @@ export function About({ heading = "About Us", description, imageUrl }: AboutProp
                         className="text-gray-600 text-sm sm:text-base md:text-lg space-y-4 sm:space-y-6 leading-relaxed"
                     >
                         {/* Split description by newlines to create paragraphs if needed */}
-                        {description.split('\n').map((para, i) => (
+                        {(description || 'No description provided').split('\n').map((para, i) => (
                             <p key={i}>{para}</p>
                         ))}
                     </motion.div>
+
+                    {/* Stats Grid */}
+                    {stats && stats.length > 0 && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.4 }}
+                            className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mt-8 sm:mt-12"
+                        >
+                            {stats.map((stat, index) => (
+                                <div key={index} className="text-center sm:text-left">
+                                    <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#4ADE80] mb-1 sm:mb-2">
+                                        {stat.value}
+                                    </div>
+                                    <div className="text-xs sm:text-sm text-gray-500">
+                                        {stat.label}
+                                    </div>
+                                </div>
+                            ))}
+                        </motion.div>
+                    )}
                 </div>
 
                 {/* Right Image */}

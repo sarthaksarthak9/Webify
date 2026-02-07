@@ -43,10 +43,13 @@ async function getPageData(slug: string): Promise<Page> {
 export default async function WebsitePage({
     params
 }: {
-    params: { slug: string }
+    params: Promise<{ slug: string }>
 }) {
+    // Next.js 15: params is now a Promise and must be awaited
+    const { slug } = await params;
+
     // Fetch data using slug from URL
-    const pageData = await getPageData(params.slug);
+    const pageData = await getPageData(slug);
 
     return (
         <ThemeProvider theme={pageData.theme}>
@@ -60,9 +63,10 @@ export default async function WebsitePage({
 // ============================================
 // GENERATE METADATA (SEO)
 // ============================================
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
     try {
-        const pageData = await getPageData(params.slug);
+        const { slug } = await params;
+        const pageData = await getPageData(slug);
 
         return {
             title: pageData.title || 'Website',

@@ -9,9 +9,10 @@ type HeroProps = {
     subtitle?: string;
     ctaText?: string;
     tagline?: string;
+    backgroundImage?: string;
 };
 
-export function Hero({ title, subtitle, ctaText, tagline }: HeroProps) {
+export function Hero({ title, subtitle, ctaText, tagline, backgroundImage }: HeroProps) {
     const containerRef = useRef<HTMLDivElement>(null);
 
     // Default tagline if not provided
@@ -32,8 +33,20 @@ export function Hero({ title, subtitle, ctaText, tagline }: HeroProps) {
     return (
         <section
             ref={containerRef}
-            className="relative w-full min-h-[100vh] md:min-h-screen lg:min-h-[150vh] bg-[#1B243F] overflow-hidden pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-8 flex items-center md:items-start"
+            className="relative w-full min-h-[100vh] md:min-h-screen lg:min-h-[150vh] overflow-hidden pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-8 flex items-center md:items-start"
+            style={backgroundImage ? {
+                backgroundImage: `url(${backgroundImage})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+            } : {
+                backgroundColor: 'var(--color-primary-dark)'
+            }}
         >
+            {/* Dark overlay for better text readability when background image is present */}
+            {backgroundImage && (
+                <div className="absolute inset-0 bg-black/60 z-0" />
+            )}
             <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 mt-0 md:mt-12 lg:mt-20 w-full">
                 {/* Left Content */}
                 <div className="text-left md:sticky md:top-40">
@@ -51,7 +64,8 @@ export function Hero({ title, subtitle, ctaText, tagline }: HeroProps) {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.3, duration: 0.6 }}
-                                className="text-xl sm:text-2xl md:text-2xl lg:text-3xl font-bold text-[#4ADE80] mb-6 leading-snug"
+                                className="text-xl sm:text-2xl md:text-2xl lg:text-3xl font-bold mb-6 leading-snug"
+                                style={{ color: 'var(--color-accent)' }}
                             >
                                 {subtitle}</motion.p>
                         )}
@@ -63,7 +77,12 @@ export function Hero({ title, subtitle, ctaText, tagline }: HeroProps) {
                                 transition={{ delay: 0.5, duration: 0.4 }}
                                 whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(74, 222, 128, 0.5)" }}
                                 whileTap={{ scale: 0.95 }}
-                                className="px-8 sm:px-8 py-4 sm:py-4 bg-[#4ADE80] text-[#1B243F] text-sm sm:text-base font-bold uppercase tracking-widest rounded-full transition-all duration-300 shadow-[0_0_20px_rgba(74,222,128,0.4)]"
+                                className="px-8 sm:px-8 py-4 sm:py-4 text-sm sm:text-base font-bold uppercase tracking-widest rounded-full transition-all duration-300"
+                                style={{
+                                    backgroundColor: 'var(--color-accent)',
+                                    color: 'var(--color-primary-dark)',
+                                    boxShadow: '0 0 20px rgba(var(--color-accent-rgb), 0.4)'
+                                }}
                             >
                                 {ctaText}
                             </motion.button>

@@ -7,16 +7,18 @@ type TestimonialItem = {
   name: string;
   role?: string;
   message: string;
+  avatar?: string;
+  rating?: number;
 };
 
 type TestimonialsProps = {
   heading?: string;
-  items: TestimonialItem[];
+  items?: TestimonialItem[];
 };
 
 export function Testimonials({
   heading = "What People Say",
-  items,
+  items = [],
 }: TestimonialsProps) {
   const containerRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -100,12 +102,25 @@ export function Testimonials({
                       {item.message}
                     </p>
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center font-bold text-[#1B243F]">
-                        {item.name.charAt(0)}
+                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center font-bold text-[#1B243F] overflow-hidden">
+                        {item.avatar ? (
+                          <img src={item.avatar} alt={item.name} className="w-full h-full object-cover" />
+                        ) : (
+                          item.name.charAt(0)
+                        )}
                       </div>
                       <div>
                         <div className="font-bold text-sm">{item.name}</div>
                         {item.role && <div className="text-xs text-gray-500">{item.role}</div>}
+                        {item.rating && (
+                          <div className="flex gap-0.5 mt-1">
+                            {[...Array(5)].map((_, i) => (
+                              <span key={i} className="text-[#4ADE80] text-xs">
+                                {i < item.rating! ? '★' : '☆'}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </motion.div>

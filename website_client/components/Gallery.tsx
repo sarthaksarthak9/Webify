@@ -5,13 +5,14 @@ import { useRef } from "react";
 
 type GalleryProps = {
   heading?: string;
-  images: {
+  subtitle?: string;
+  images?: {
     src: string;
     alt?: string;
   }[];
 };
 
-export function Gallery({ heading = "Gallery", images }: GalleryProps) {
+export function Gallery({ heading = "Gallery", subtitle, images = [] }: GalleryProps) {
   const containerRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -30,10 +31,21 @@ export function Gallery({ heading = "Gallery", images }: GalleryProps) {
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-12 sm:mb-16 md:mb-24"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4 sm:mb-6"
         >
           {heading}
         </motion.h2>
+        {subtitle && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="text-lg sm:text-xl text-gray-300 text-center mb-12 sm:mb-16 md:mb-24 max-w-2xl mx-auto"
+          >
+            {subtitle}
+          </motion.p>
+        )}
 
         <div className="relative">
           {/* 

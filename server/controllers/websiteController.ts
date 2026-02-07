@@ -237,9 +237,21 @@ export const getPublicWebsite = async (
     try {
         const { slug } = req.params;
 
-        const website = await Website.findOne({ slug, status: 'published' });
+        // In development, allow draft websites for testing
+        // In production, only show published websites
+        const query: any = { slug };
+        if (process.env.NODE_ENV === 'production') {
+            query.status = 'published';
+        }
+
+        console.log('🔍 Searching for website with query:', query);
+        const website = await Website.findOne(query);
+        console.log('📊 Found website:', website ? `Yes (${website.title})` : 'No');
 
         if (!website) {
+            // Debug: List all websites to see what slugs exist
+            const allWebsites = await Website.find({}, 'slug title').limit(10);
+            console.log('📋 All website slugs in DB:', allWebsites.map(w => `"${w.slug}"`));
             throw new AppError('Website not found', 404);
         }
 
