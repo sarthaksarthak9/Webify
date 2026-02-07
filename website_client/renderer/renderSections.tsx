@@ -16,7 +16,7 @@ export function renderSections({ sections }: Props) {
   return (
     <>
       {sections.map((section, index) => {
-        const Component = componentMap[section.type];
+        const Component = componentMap[section.type.toLowerCase()];
 
         // Safety check: if component is not registered
         if (!Component) {

@@ -46,12 +46,7 @@ IMPORTANT INSTRUCTIONS:
    - If you output text instead of a Component, it will NOT be rendered.
    - Generate at least 5-6 sections for a complete page.
 6. Make sure to generate the Hero section immediately after the Navbar.
-7. CRITICAL: For any 'email' fields in Contact or other sections, you MUST use a valid email format (e.g., 'hello@example.com'). Do NOT use placeholders like 'email@example' or '<email>'.
-8. CRITICAL IMAGE INSTRUCTION: 
-   - For every 'Features' item, you MUST include an 'imageUrl' property.
-   - Use this dynamic URL format for images: "https://image.pollinations.ai/prompt/<description-of-feature>?width=800&height=600&nologo=true"
-   - Replace <description-of-feature> with a short, specific 2-3 word description of the feature (e.g., "music-streaming", "live-concert", "equalizer-ui").
-   - DO NOT rely on default images. ALWAYS generate a unique URL for each feature.`;
+7. CRITICAL: For any 'email' fields in Contact or other sections, you MUST use a valid email format (e.g., 'hello@example.com'). Do NOT use placeholders like 'email@example' or '<email>'.`;
         setValue(enhancedPrompt);
         // Allow state to update before submitting
         setTimeout(() => submit(), 0);

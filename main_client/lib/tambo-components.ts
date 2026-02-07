@@ -33,10 +33,11 @@ const featuresSchema = z.object({
             icon: z.string().nullish().describe('Icon identifier (e.g. rocket, shield, chart)'),
             title: z.string().nullish().describe('Feature title'),
             description: z.string().nullish().describe('Feature description'),
+            image: z.string().nullish().describe('Feature image URL'),
         })
     ).nullish().describe('List of features to display'),
     layout: z.string().nullish().describe('Layout style (grid, list)'),
-    columns: z.number().min(2).max(4).default(3).describe('Number of columns for grid layout'),
+    columns: z.number().min(1).max(6).default(3).describe('Number of columns for grid layout'),
 });
 
 // ============================================
@@ -54,7 +55,7 @@ const gallerySchema = z.object({
         })
     ).nullish().describe('List of images to display'),
     layout: z.string().nullish().describe('Gallery layout style (grid, masonry, carousel)'),
-    columns: z.number().min(2).max(4).default(3).describe('Number of columns'),
+    columns: z.number().min(1).max(6).default(3).describe('Number of columns'),
 });
 
 // ============================================
@@ -79,7 +80,7 @@ const aboutSchema = z.object({
 const contactSchema = z.object({
     heading: z.string().nullish().describe('Contact section heading'),
     subtitle: z.string().nullish().describe('Contact section subtitle'),
-    email: z.string().email().nullish().describe('Contact email address'),
+    email: z.string().nullish().describe('Contact email address'),
     phone: z.string().nullish().describe('Contact phone number'),
     address: z.string().nullish().describe('Physical address'),
     formFields: z.array(
