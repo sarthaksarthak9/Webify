@@ -8,11 +8,12 @@ Webify is an intelligent website generation platform that transforms natural lan
 
 ## 📋 Table of Contents
 
+- [Introduction](#-introduction)
 - [Features](#-features)
-- [Architecture](#️-architecture)
+- [Architecture](#-architecture)
 - [Tambo AI Integration](#-tambo-ai-integration)
-- [Technology Stack](#️-technology-stack)
-- [Project Structure](#-project-structure)
+- [Technology Stack](#-technology-stack)
+- [Screenshots](#-screenshots)
 - [Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
