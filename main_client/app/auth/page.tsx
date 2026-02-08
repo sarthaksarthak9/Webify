@@ -11,7 +11,9 @@ import dynamic from 'next/dynamic';
 const CrystalRain = dynamic(() => import('@/components/3d/CrystalRain'), { ssr: false });
 const MobileAssistant = dynamic(() => import('@/components/landing/MobileAssistant'), { ssr: false });
 
-export default function AuthPage() {
+import { Suspense } from 'react';
+
+function AuthContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
@@ -259,5 +261,13 @@ export default function AuthPage() {
 
             <MobileAssistant />
         </div>
+    );
+}
+
+export default function AuthPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="animate-spin text-white" /></div>}>
+            <AuthContent />
+        </Suspense>
     );
 }
