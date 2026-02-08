@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Section, Website } from "@/types/website";
-import { getWebsiteBySlug, updateWebsite } from "@/lib/mockData";
+import { websiteService } from "@/services/api";
 import { toast } from "sonner";
 import { NavBarSectionForm } from "@/components/editors/sections/NavBarSectionForm";
 import { HeroSectionForm } from "@/components/editors/sections/HeroSectionForm";
@@ -45,7 +45,7 @@ export default function SectionEditorPage() {
 	const loadWebsite = async () => {
 		setIsLoading(true);
 		try {
-			const data = await getWebsiteBySlug(slug);
+			const data = await websiteService.getBySlug(slug);
 			if (!data) {
 				throw new Error("Website not found");
 			}
@@ -93,7 +93,7 @@ export default function SectionEditorPage() {
 				sections: updatedSections,
 			};
 
-			await updateWebsite(slug, updatedWebsite);
+			await websiteService.updateBySlug(slug, updatedWebsite);
 			toast.success("Section saved successfully!");
 			router.back();
 		} catch (error) {

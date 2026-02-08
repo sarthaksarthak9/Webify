@@ -32,7 +32,7 @@ export default function WebsiteEditorPage() {
 	const loadWebsite = async () => {
 		setIsLoading(true);
 		try {
-			const data = await websiteService.getById(slug); // Uses /websites/:slug
+			const data = await websiteService.getBySlug(slug); // Uses /websites/:slug
 			const siteData = data.data || data; // Handle potential wrapper
 			setWebsite(siteData);
 		} catch (error) {
@@ -59,7 +59,7 @@ export default function WebsiteEditorPage() {
 				deploymentUrl: website.deploymentUrl,
 			};
 
-			await websiteService.update(slug, updateData);
+			await websiteService.updateBySlug(slug, updateData);
 			setHasChanges(false);
 			toast.success("Website saved successfully!");
 

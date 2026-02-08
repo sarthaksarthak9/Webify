@@ -88,6 +88,16 @@ export const websiteService = {
     const response = await api.delete(`/websites/${id}`);
     // Server returns { success: true, message: "Website deleted" }
     return response.data;
+  },
+
+  getBySlug: async (slug: string) => {
+    const response = await api.get(`/websites/${slug}`);
+    return response.data.data;
+  },
+
+  updateBySlug: async (slug: string, data: any) => {
+    const response = await api.put(`/websites/${slug}`, data);
+    return response.data.data;
   }
 };
 
