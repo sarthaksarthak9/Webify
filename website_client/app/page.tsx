@@ -16,7 +16,7 @@ const pageData: Page = {
   sections: [
     {
       type: "NavBar",
-      props: {
+      content: {
         logoText: "AI Builder",
         links: [
           { label: "Home", href: "#" },
@@ -26,7 +26,7 @@ const pageData: Page = {
     },
     {
       type: "Hero",
-      props: {
+      content: {
         title: "AI Website Builder",
         subtitle: "Build websites using simple prompts",
         ctaText: "Get Started",
@@ -34,7 +34,7 @@ const pageData: Page = {
     },
     {
       type: "About",
-      props: {
+      content: {
         heading: "What We Do",
         description:
           "We help users build websites using AI-generated structures combined with a powerful visual editor.",
@@ -43,7 +43,7 @@ const pageData: Page = {
     },
     {
       type: "Features",
-      props: {
+      content: {
         heading: "Our Approach",
         items: [
           {
@@ -79,7 +79,7 @@ const pageData: Page = {
     },
     {
       type: "Gallery",
-      props: {
+      content: {
         heading: "Our Work",
         images: [
           {
@@ -103,7 +103,7 @@ const pageData: Page = {
     },
     {
       type: "Testimonials",
-      props: {
+      content: {
         heading: "Loved by Users",
         items: [
           {
@@ -129,7 +129,7 @@ const pageData: Page = {
     },
     {
       type: "Contact",
-      props: {
+      content: {
         heading: "Get in Touch",
         email: "hello@aibuilder.com",
         phone: "+91 98765 43210",
@@ -138,14 +138,14 @@ const pageData: Page = {
     },
     {
       type: "CTA",
-      props: {
+      content: {
         heading: "Ready to build your website?",
         subheading: "Start creating your site using AI in minutes.",
         buttonText: "Start Now",
       },
     }, {
       type: "Footer",
-      props: {
+      content: {
         text: "© 2026 AI Website Builder. All rights reserved.",
       },
     },
