@@ -32,6 +32,9 @@ export interface Website {
 	title: string;
 	theme: Theme;
 	sections: Section[];
+    isPublished: boolean;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface WebsiteListItem {

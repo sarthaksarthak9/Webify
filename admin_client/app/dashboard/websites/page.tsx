@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Card } from "@/components/ui/Card";
 import { Website } from "@/types/website";
-import { getWebsites } from "@/lib/mockData";
+import { websiteService } from "@/services/api";
 
 export default function WebsitesPage() {
 	const [websites, setWebsites] = useState<Website[]>([]);
@@ -19,8 +19,8 @@ export default function WebsitesPage() {
 	const loadWebsites = async () => {
 		setIsLoading(true);
 		try {
-			const data = await getWebsites();
-			setWebsites(data);
+			const data = await websiteService.getAll();
+			setWebsites(data || []);
 		} catch (error) {
 			console.error("Failed to load websites:", error);
 		} finally {
@@ -184,7 +184,7 @@ export default function WebsitesPage() {
 														d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"
 													/>
 												</svg>
-												{website.sections.length}{" "}
+												{website.sections?.length || 0}{" "}
 												sections
 											</div>
 										</div>

@@ -52,9 +52,9 @@ export default function DashboardPage() {
 									<p className="text-xs text-[var(--admin-text-muted)] font-semibold uppercase tracking-wide mb-3">
 										Total Websites
 									</p>
-									<p className="text-3xl font-bold text-white mb-1">
-										{loading ? "-" : stats.total}
-									</p>
+									<div className="text-3xl font-bold text-white mb-1">
+										{loading ? <span className="inline-block animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-white/50"></span> : stats.total}
+									</div>
 									<p className="text-sm text-[var(--admin-text-muted)]">
 										All created websites
 									</p>
@@ -84,7 +84,9 @@ export default function DashboardPage() {
 					<div>
 						<h3 className="text-xl font-bold text-white mb-4">Your Websites</h3>
 						{loading ? (
-							<div className="text-[var(--admin-text-muted)]">Loading websites...</div>
+							<div className="flex items-center justify-center py-12">
+								<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--admin-accent)]"></div>
+							</div>
 						) : websites.length === 0 ? (
 							<div className="text-[var(--admin-text-muted)] p-8 border border-[var(--admin-border)] rounded-lg text-center">
 								<p className="mb-4">No websites found. Create one to get started!</p>

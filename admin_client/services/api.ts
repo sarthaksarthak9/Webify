@@ -44,9 +44,13 @@ export const authService = {
   login: async (email: string, password: string) => {
     const response = await api.post('/auth/login', { email, password });
     console.log("hello",response.data);
-    // Server returns { success: true, data: { token, userId, ... } }
-    // So we return response.data.data to get the actual user/token object
-    return response.data.data;
+    // Server returns { success: true, data: { userId, email, name, token } }
+    // We need to structure it as { token, user: { userId, email, name } } for the frontend
+    const { token, ...userData } = response.data.data;
+    return {
+      token,
+      user: userData
+    };
   },
   
   getProfile: async () => {

@@ -5,7 +5,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 interface AuthContextType {
     isAuthenticated: boolean;
     userEmail: string | null;
-    login: (email: string, password: string) => boolean;
+    loginSuccess: (token: string, user: any) => void;
     logout: () => void;
     isLoading: boolean;
 }
@@ -29,16 +29,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(false);
     }, []);
 
-    const login = (email: string, password: string): boolean => {
-        // Hardcoded authentication
-        if (email === 'yash@gmail.com' && password === '123456') {
-            setIsAuthenticated(true);
-            setUserEmail(email);
-            localStorage.setItem('admin_auth', 'true');
-            localStorage.setItem('admin_email', email);
-            return true;
-        }
-        return false;
+    const loginSuccess = (token: string, user: any) => {
+        setIsAuthenticated(true);
+        setUserEmail(user.email);
+        localStorage.setItem('admin_auth', 'true');
+        localStorage.setItem('admin_email', user.email);
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
     };
 
     const logout = () => {
@@ -46,10 +43,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUserEmail(null);
         localStorage.removeItem('admin_auth');
         localStorage.removeItem('admin_email');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, userEmail, login, logout, isLoading }}>
+        <AuthContext.Provider value={{ isAuthenticated, userEmail, loginSuccess, logout, isLoading }}>
             {children}
         </AuthContext.Provider>
     );

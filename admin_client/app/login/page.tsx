@@ -10,7 +10,7 @@ export default function LoginPage() {
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
-	// const { login } = useAuth(); // We might use this later if we update context, but for now we handle it manually or via service
+	const { loginSuccess } = useAuth();
 	const router = useRouter();
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -22,13 +22,8 @@ export default function LoginPage() {
 			// Call the login API using the service
 			const data = await authService.login(email, password);
 
-			// Store token and user info
-			if (typeof window !== "undefined") {
-				localStorage.setItem("token", data.token);
-				if (data.user) {
-					localStorage.setItem("user", JSON.stringify(data.user));
-				}
-			}
+			// Store token and user info via context
+			loginSuccess(data.token, data.user);
 
 			// Redirect to dashboard
 			router.push("/dashboard");
