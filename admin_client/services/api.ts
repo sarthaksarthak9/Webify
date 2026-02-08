@@ -66,7 +66,7 @@ export const authService = {
 
 export const websiteService = {
   getAll: async () => {
-    const response = await api.get('/websites');
+    const response = await api.get('/websites?limit=100');
     // Server returns { success: true, data: { websites: [...], pagination: {...} } }
     // So we return response.data.data.websites to get the actual array
     return response.data.data.websites;

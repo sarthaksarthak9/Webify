@@ -12,7 +12,7 @@ import { useState } from "react";
 const demoSections = [
     {
         type: "Hero",
-        props: {
+        content: {
             title: "Theme Demo",
             subtitle: "See how colors change dynamically!",
             ctaText: "Try It Out",
@@ -20,14 +20,14 @@ const demoSections = [
     },
     {
         type: "About",
-        props: {
+        content: {
             heading: "Dynamic Theming",
             description: "This page demonstrates how the same components look with different color themes. Click the buttons above to switch themes!",
         },
     },
     {
         type: "CTA",
-        props: {
+        content: {
             heading: "Ready to customize?",
             subheading: "Your backend controls all the colors",
             buttonText: "Get Started",
