@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TamboProvider } from "@/components/providers/TamboProvider";
+import { Toaster } from 'sonner';
+import SmoothScroll from "@/components/utils/SmoothScroll";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +33,8 @@ export default function RootLayout({
       >
         <TamboProvider>
           {children}
+          <Toaster position="top-right" richColors theme="dark" />
+          <SmoothScroll />
         </TamboProvider>
       </body>
     </html>

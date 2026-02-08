@@ -1,9 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTamboThread, useTamboThreadInput } from '@tambo-ai/react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, ArrowRight, Save, Layout, Terminal, Code2, Loader2, LogOut, User, CheckCircle2, History } from 'lucide-react';
+import Link from 'next/link';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
+import { Menu } from 'lucide-react';
+
+const HistorySidebar = dynamic(() => import('@/components/generate/HistorySidebar'), { ssr: false });
 
 export default function GeneratePage() {
+    const router = useRouter();
     const { thread } = useTamboThread();
     const { value, setValue, submit, isPending } = useTamboThreadInput();
     const [saveStatus, setSaveStatus] = useState<{
@@ -13,8 +23,43 @@ export default function GeneratePage() {
         data: any;
     }>({ loading: false, success: false, error: null, data: null });
 
+    const [hasStarted, setHasStarted] = useState(false);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    // Load user on mount
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+        // Auto-scroll to bottom of messages
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [thread.messages]);
+
+    // Update hasStarted when there are messages
+    useEffect(() => {
+        if (thread.messages.length > 0) {
+            setHasStarted(true);
+        }
+    }, [thread.messages]);
+
+    const suggestions = [
+        "Create a modern SaaS landing page for an AI startup",
+        "Design a minimalist portfolio for a photographer",
+        "Build an e-commerce home page for organic skincare",
+        "Make a corporate website for a legal firm"
+    ];
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!value.trim()) return;
+
+        setHasStarted(true);
+
         // Append instruction to ensure decisive generation + theme component + navbar
         const delimiter = '\n\n________HIDDEN_INSTRUCTIONS________\n\n';
         const enhancedPrompt = `${value}${delimiter}
@@ -46,7 +91,8 @@ IMPORTANT INSTRUCTIONS:
    - If you output text instead of a Component, it will NOT be rendered.
    - Generate at least 5-6 sections for a complete page.
 6. Make sure to generate the Hero section immediately after the Navbar.
-7. CRITICAL: For any 'email' fields in Contact or other sections, you MUST use a valid email format (e.g., 'hello@example.com'). Do NOT use placeholders like 'email@example' or '<email>'.`;
+7. CRITICAL: For any 'email' fields in Contact or other sections, you MUST use a valid email format (e.g., 'hello@example.com'). Do NOT use placeholders like 'email@example' or '<email>'.
+8. CRITICAL: For any 'image' or 'src' fields, try to give the image DO NOT return null or empty strings for images.`;
         setValue(enhancedPrompt);
         // Allow state to update before submitting
         setTimeout(() => submit(), 0);
@@ -54,6 +100,7 @@ IMPORTANT INSTRUCTIONS:
 
     const handleSaveToDatabase = async () => {
         setSaveStatus({ loading: true, success: false, error: null, data: null });
+        const toastId = toast.loading("Saving your website...");
 
         try {
             // Get the generated data from the last message
@@ -61,7 +108,6 @@ IMPORTANT INSTRUCTIONS:
             // Extract sections from Tambo messages (exclude Theme - it's metadata, not a section)
             const sections = thread.messages
                 .filter((msg: any) => msg.role === 'assistant' && msg.component && msg.component.componentName)
-                .filter((msg: any) => msg.component.componentName.toLowerCase() !== 'theme') // Exclude Theme
                 .filter((msg: any) => msg.component.componentName.toLowerCase() !== 'theme') // Exclude Theme
                 .map((msg: any, index: number) => ({
                     id: `section_${Date.now()}_${index}`,
@@ -132,7 +178,6 @@ IMPORTANT INSTRUCTIONS:
             const hasNavBar = finalSections.some((s: any) => s.type === 'navbar');
             if (!hasNavBar) {
                 console.log('🔧 NavBar not found in Tambo response - Auto-injecting NavBar');
-                // Create a default NavBar section
                 finalSections.unshift({
                     id: `section_navbar_${Date.now()}`,
                     type: 'navbar',
@@ -149,14 +194,11 @@ IMPORTANT INSTRUCTIONS:
                     },
                     order: 0,
                 });
-                // Reorder other sections
                 finalSections.forEach((section: any, index: number) => {
                     if (section.type !== 'navbar') {
                         section.order = index;
                     }
                 });
-            } else {
-                console.log('✅ NavBar found in Tambo response');
             }
 
             // ============================================
@@ -173,23 +215,10 @@ IMPORTANT INSTRUCTIONS:
 
                 // If Tambo generated a Theme component, use it directly!
                 if (themeMessage?.component?.props) {
-                    const colors = themeMessage.component.props;
                     return {
                         name: 'AI Generated Theme',
                         colors: {
-                            primary: colors.primary || '#3B82F6',
-                            primaryDark: colors.primaryDark || '#1E40AF',
-                            primaryLight: colors.primaryLight || '#60A5FA',
-                            background: colors.background || '#FFFFFF',
-                            backgroundAlt: colors.backgroundAlt || '#F9FAFB',
-                            backgroundLight: colors.backgroundLight || '#F3F4F6',
-                            text: colors.text || '#1F2937',
-                            textLight: colors.textLight || '#6B7280',
-                            textDark: colors.textDark || '#111827',
-                            accent: colors.accent || '#10B981',
-                            success: colors.success || '#10B981',
-                            warning: colors.warning || '#F59E0B',
-                            error: colors.error || '#EF4444',
+                            ...themeMessage.component.props
                         },
                     };
                 }
@@ -220,28 +249,7 @@ IMPORTANT INSTRUCTIONS:
                     };
                 }
 
-                // Tech/SaaS - Blue/Purple
-                if (promptLower.includes('tech') || promptLower.includes('software') ||
-                    promptLower.includes('saas') || promptLower.includes('app')) {
-                    return {
-                        name: 'Tech Theme',
-                        colors: {
-                            primary: '#3B82F6',
-                            primaryDark: '#1E40AF',
-                            primaryLight: '#60A5FA',
-                            background: '#FFFFFF',
-                            backgroundAlt: '#F9FAFB',
-                            backgroundLight: '#F3F4F6',
-                            text: '#1F2937',
-                            textLight: '#6B7280',
-                            textDark: '#111827',
-                            accent: '#8B5CF6',
-                            success: '#10B981',
-                            warning: '#F59E0B',
-                            error: '#EF4444',
-                        },
-                    };
-                }
+                // Tech/SaaS - Blue/Purple (Default fallback handled below)
 
                 // Health/Wellness - Green
                 if (promptLower.includes('health') || promptLower.includes('wellness') ||
@@ -259,29 +267,6 @@ IMPORTANT INSTRUCTIONS:
                             textLight: '#6B7280',
                             textDark: '#111827',
                             accent: '#14B8A6',
-                            success: '#10B981',
-                            warning: '#F59E0B',
-                            error: '#EF4444',
-                        },
-                    };
-                }
-
-                // Creative/Design - Purple/Pink
-                if (promptLower.includes('creative') || promptLower.includes('design') ||
-                    promptLower.includes('art') || promptLower.includes('portfolio')) {
-                    return {
-                        name: 'Creative Theme',
-                        colors: {
-                            primary: '#A855F7',
-                            primaryDark: '#7C3AED',
-                            primaryLight: '#C084FC',
-                            background: '#FFFFFF',
-                            backgroundAlt: '#FAF5FF',
-                            backgroundLight: '#F3E8FF',
-                            text: '#1F2937',
-                            textLight: '#6B7280',
-                            textDark: '#111827',
-                            accent: '#EC4899',
                             success: '#10B981',
                             warning: '#F59E0B',
                             error: '#EF4444',
@@ -317,29 +302,6 @@ IMPORTANT INSTRUCTIONS:
                 sections: finalSections,
             };
 
-            console.log('\n' + '='.repeat(60));
-            console.log('🎨 THEME COLORS EXTRACTED:');
-            console.log('='.repeat(60));
-            console.log('Theme Name:', websiteData.theme.name);
-            console.log('Primary Color:', websiteData.theme.colors.primary);
-            console.log('Accent Color:', websiteData.theme.colors.accent);
-            console.log('Background:', websiteData.theme.colors.background);
-            console.log('='.repeat(60));
-
-            console.log('\n' + '='.repeat(60));
-            console.log('📋 SECTIONS TO BE SAVED:');
-            console.log('='.repeat(60));
-            finalSections.forEach((section: any, index: number) => {
-                console.log(`${index + 1}. ${section.type.toUpperCase()}`);
-            });
-            console.log('='.repeat(60));
-
-            console.log('\n' + '='.repeat(60));
-            console.log('💾 COMPLETE WEBSITE DATA:');
-            console.log('='.repeat(60));
-            console.log(JSON.stringify(websiteData, null, 2));
-            console.log('='.repeat(60) + '\n');
-
             // Get auth token from localStorage
             const token = localStorage.getItem('token');
 
@@ -359,137 +321,351 @@ IMPORTANT INSTRUCTIONS:
 
             const data = await response.json();
             setSaveStatus({ loading: false, success: true, error: null, data: data.data });
+            toast.dismiss(toastId);
+            toast.success("Website saved successfully!");
         } catch (error: any) {
             setSaveStatus({ loading: false, success: false, error: error.message, data: null });
+            toast.dismiss(toastId);
+            toast.error(error.message || "Failed to save website");
         }
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        router.push('/');
+    };
+
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
-            <div className="max-w-6xl mx-auto">
-                <h1 className="text-4xl font-bold mb-8">Generate Website with AI</h1>
-
-                {/* Chat Interface */}
-                <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <div className="mb-6 h-96 overflow-y-auto border border-gray-200 rounded-lg p-4">
-                        {thread.messages.map((message) => (
-                            <div
-                                key={message.id}
-                                className={`mb-4 p-3 rounded-lg ${message.role === 'user'
-                                    ? 'bg-blue-100 ml-auto max-w-md'
-                                    : 'bg-gray-100 mr-auto max-w-md'
-                                    }`}
-                            >
-                                <div className="font-semibold text-sm mb-1">
-                                    {message.role === 'user' ? 'You' : 'Tambo AI'}
-                                </div>
-                                {(() => {
-                                    // CLEAN MESSAGE CONTENT LOGIC
-                                    let contentToRender: any = message.content;
-
-                                    // 1. Hide appended instructions from User messages
-                                    if (message.role === 'user' && typeof contentToRender === 'string') {
-                                        contentToRender = contentToRender.split('________HIDDEN_INSTRUCTIONS________')[0].trim();
-                                    }
-
-                                    // 2. Hide raw JSON code blocks from Assistant messages (if any leak through)
-                                    if (message.role === 'assistant' && typeof contentToRender === 'string') {
-                                        // Remove JSON code blocks that might be raw data dumps
-                                        contentToRender = contentToRender.replace(/```json[\s\S]*?```/g, '(Generated Section Data)');
-                                    }
-
-                                    return Array.isArray(contentToRender) ? (
-                                        contentToRender.map((part, i) =>
-                                            part.type === 'text' ? (
-                                                <p key={i} className="text-gray-800 whitespace-pre-wrap">
-                                                    {part.text}
-                                                </p>
-                                            ) : null
-                                        )
-                                    ) : (
-                                        <p className="text-gray-800 whitespace-pre-wrap">{String(contentToRender)}</p>
-                                    );
-                                })()}
-                                {message.renderedComponent && (
-                                    <div className="mt-2 border-t pt-2">
-                                        {message.renderedComponent}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                        {isPending && (
-                            <div className="text-gray-500 italic">AI is thinking...</div>
-                        )}
-                        {!isPending && thread.messages.length > 2 && (
-                            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm">
-                                ✅ Website generation complete! Please review the layout below. If you're happy, click "Save to Database" to proceed.
-                            </div>
-                        )}
-                    </div>
-
-                    <form onSubmit={handleSubmit} className="flex gap-2">
-                        <input
-                            type="text"
-                            value={value}
-                            onChange={(e) => setValue(e.target.value)}
-                            placeholder="Describe your website (e.g., 'make an education website')"
-                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            disabled={isPending}
-                        />
-                        <button
-                            type="submit"
-                            disabled={isPending || !value.trim()}
-                            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                        >
-                            {isPending ? 'Generating...' : 'Generate'}
-                        </button>
-                    </form>
-                </div>
-
-                {/* Save to Database */}
-                {thread.messages.length > 0 && (
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                        <h2 className="text-2xl font-bold mb-4">Save Website</h2>
-                        <p className="text-gray-600 mb-4">
-                            Save the generated website to your dashboard
-                        </p>
-
-                        <button
-                            onClick={handleSaveToDatabase}
-                            disabled={saveStatus.loading}
-                            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                        >
-                            {saveStatus.loading ? 'Saving...' : 'Save to Database'}
-                        </button>
-
-                        {saveStatus.success && (
-                            <div className="mt-4 p-4 bg-green-100 border border-green-400 rounded-lg">
-                                <p className="text-green-800 font-semibold">
-                                    ✅ Website saved successfully!
-                                </p>
-                                <p className="text-green-700 mt-2">
-                                    Page ID: {saveStatus.data?.pageId}
-                                </p>
-                                <p className="text-green-700">
-                                    Slug: {saveStatus.data?.slug}
-                                </p>
-                                <a
-                                    href={`/dashboard`}
-                                    className="inline-block mt-2 text-green-800 underline"
-                                >
-                                    View in Dashboard →
-                                </a>
-                            </div>
-                        )}
-
-                        {saveStatus.error && (
-                            <div className="mt-4 p-4 bg-red-100 border border-red-400 rounded-lg">
-                                <p className="text-red-800">❌ Error: {saveStatus.error}</p>
-                            </div>
-                        )}
-                    </div>
-                )}
+        <div className="min-h-screen bg-background text-foreground relative overflow-hidden font-sans selection:bg-blue-500/30">
+            {/* Background Effects */}
+            <div className="fixed inset-0 z-0 pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/10 rounded-full blur-[120px]" />
+                <div className="absolute top-0 left-0 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
             </div>
+
+            {/* Navbar */}
+            <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-background/50 backdrop-blur-xl">
+                <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="p-2 hover:bg-white/5 rounded-full text-white/70 hover:text-white transition-colors"
+                        >
+                            <Menu size={24} />
+                        </button>
+                        <Link href="/" className="flex items-center gap-2 group">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-shadow">
+                                W
+                            </div>
+                            <span className="font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
+                                Webify
+                            </span>
+                        </Link>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        {user ? (
+                            <div className="flex items-center gap-3 pl-4 border-l border-white/10">
+                                <div className="text-right hidden sm:block">
+                                    <div className="text-sm font-medium text-white">{user.name}</div>
+                                    <div className="text-xs text-white/40">{user.email}</div>
+                                </div>
+                                <button
+                                    onClick={handleLogout}
+                                    className="p-2 rounded-full hover:bg-white/5 text-white/50 hover:text-white transition-colors"
+                                    title="Sign Out"
+                                >
+                                    <LogOut size={18} />
+                                </button>
+                            </div>
+                        ) : (
+                            <Link href="/auth?tab=login" className="text-sm font-medium text-white/70 hover:text-white transition-colors">
+                                Login
+                            </Link>
+                        )}
+                    </div>
+                </div>
+            </nav>
+
+            {/* Main Content */}
+            <main className="relative z-10 container mx-auto px-6 pt-32 pb-20 min-h-screen flex flex-col">
+
+                {/* Initial Search / Hero State */}
+                <AnimatePresence mode="wait">
+                    {!hasStarted ? (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.5 }}
+                            className="flex-1 flex flex-col items-center justify-center max-w-3xl mx-auto w-full text-center space-y-8"
+                        >
+                            <div className="space-y-4">
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.1 }}
+                                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium uppercase tracking-wider mb-4"
+                                >
+                                    <Sparkles size={12} />
+                                    AI Website Builder
+                                </motion.div>
+                                <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white glow-text">
+                                    What do you want to <br />
+                                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400">
+                                        build today?
+                                    </span>
+                                </h1>
+                                <p className="text-lg text-white/40 max-w-lg mx-auto">
+                                    Describe your dream project, and Webify will generate a complete, production-ready website for you in seconds.
+                                </p>
+                            </div>
+
+                            <div className="w-full relative group">
+                                <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200" />
+                                <form onSubmit={handleSubmit} className="relative flex items-center bg-[#0B0E14] border border-white/10 rounded-xl p-2 shadow-2xl">
+                                    <div className="p-3 text-white/30">
+                                        <Code2 size={24} />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={value}
+                                        onChange={(e) => setValue(e.target.value)}
+                                        placeholder="e.g., A minimalist portfolio for a wildlife photographer..."
+                                        className="flex-1 bg-transparent border-none outline-none text-white placeholder-white/30 text-lg px-2"
+                                        autoFocus
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={!value.trim() || isPending}
+                                        className="p-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed group-submit"
+                                    >
+                                        <ArrowRight size={20} className="group-submit-hover:translate-x-1 transition-transform" />
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div className="flex flex-wrap items-center justify-center gap-3">
+                                <span className="text-xs text-white/30 font-medium uppercase tracking-widest">Suggestions:</span>
+                                {suggestions.map((suggestion, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => setValue(suggestion)}
+                                        className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-xs text-white/60 hover:text-white transition-all"
+                                    >
+                                        {suggestion}
+                                    </button>
+                                ))}
+                            </div>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="flex flex-col h-full w-full max-w-5xl mx-auto"
+                        >
+                            {/* Chat Interface / Output Console */}
+                            <div className="flex-1 bg-card/30 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden flex flex-col shadow-2xl mb-6 min-h-[500px]">
+                                {/* Header */}
+                                <div className="h-12 border-b border-white/10 bg-white/5 flex items-center justify-between px-4">
+                                    <div className="flex items-center gap-2 text-sm text-white/50">
+                                        <Terminal size={14} />
+                                        <span>Generation Console</span>
+                                    </div>
+                                    {isPending ? (
+                                        <div className="flex items-center gap-2 text-xs text-blue-400 animate-pulse">
+                                            <Loader2 size={12} className="animate-spin" />
+                                            <span>Processing...</span>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center gap-2 text-xs text-green-400">
+                                            <CheckCircle2 size={12} />
+                                            <span>Ready</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Messages Area */}
+                                <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                                    {thread.messages.map((message) => {
+                                        // Clean content logic
+                                        let contentToRender: any = message.content;
+                                        const separator = '________HIDDEN_INSTRUCTIONS________';
+
+                                        if (message.role === 'user') {
+                                            if (typeof contentToRender === 'string') {
+                                                contentToRender = contentToRender.split(separator)[0].trim();
+                                            } else if (Array.isArray(contentToRender)) {
+                                                contentToRender = contentToRender.map(part => {
+                                                    if (part.type === 'text' && typeof part.text === 'string') {
+                                                        return { ...part, text: part.text.split(separator)[0].trim() };
+                                                    }
+                                                    return part;
+                                                });
+                                            }
+                                        }
+
+                                        if (message.role === 'assistant' && typeof contentToRender === 'string') {
+                                            contentToRender = contentToRender.replace(/```json[\s\S]*?```/g, '✨ Generated Section Data');
+                                        }
+
+                                        return (
+                                            <div
+                                                key={message.id}
+                                                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                                            >
+                                                <div
+                                                    className={`max-w-[80%] rounded-2xl p-4 ${message.role === 'user'
+                                                        ? 'bg-blue-600 text-white rounded-br-sm'
+                                                        : 'bg-white/5 border border-white/10 text-white/80 rounded-bl-sm'
+                                                        }`}
+                                                >
+                                                    <div className="text-xs font-medium opacity-50 mb-1">
+                                                        {message.role === 'user' ? 'You' : 'Webify AI'}
+                                                    </div>
+
+                                                    {Array.isArray(contentToRender) ? (
+                                                        contentToRender.map((part: any, i: number) =>
+                                                            part.type === 'text' ? (
+                                                                <p key={i} className="whitespace-pre-wrap text-sm leading-relaxed">
+                                                                    {part.text}
+                                                                </p>
+                                                            ) : null
+                                                        )
+                                                    ) : (
+                                                        <p className="whitespace-pre-wrap text-sm leading-relaxed">{String(contentToRender)}</p>
+                                                    )}
+
+                                                    {message.renderedComponent && (
+                                                        <div className="mt-3 pt-3 border-t border-white/10">
+                                                            <div className="text-xs text-blue-400 flex items-center gap-1 mb-2">
+                                                                <Layout size={12} />
+                                                                Generated Component
+                                                            </div>
+                                                            <div className="opacity-75 text-xs font-mono bg-black/20 p-2 rounded border border-white/5">
+                                                                Component Rendered
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                    <div ref={messagesEndRef} />
+                                </div>
+
+                                {/* Input Area (Bottom of Console) */}
+                                <div className="p-4 border-t border-white/10 bg-white/5">
+                                    <form onSubmit={handleSubmit} className="flex gap-3">
+                                        <input
+                                            type="text"
+                                            value={value}
+                                            onChange={(e) => setValue(e.target.value)}
+                                            placeholder={isPending ? "Generating your website..." : "Refine generation or add more details..."}
+                                            className="flex-1 bg-black/20 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-blue-500/50 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                            disabled={isPending}
+                                        />
+
+                                        {/* Contextual Save Button: Shows when idle, generation exists, and input is empty */}
+                                        {!isPending && thread.messages.length > 2 && !value.trim() ? (
+                                            <button
+                                                type="button"
+                                                onClick={handleSaveToDatabase}
+                                                disabled={saveStatus.loading}
+                                                className="px-4 bg-green-600 hover:bg-green-500 text-white rounded-lg transition-all flex items-center justify-center p-3 gap-2"
+                                                title="Save to Database"
+                                            >
+                                                {saveStatus.loading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                                                <span className="hidden sm:inline font-medium text-xs">Save</span>
+                                            </button>
+                                        ) : (
+                                            <button
+                                                type="submit"
+                                                disabled={isPending || !value.trim()}
+                                                className="px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center p-3"
+                                            >
+                                                {isPending ? <Loader2 size={18} className="animate-spin" /> : <ArrowRight size={18} />}
+                                            </button>
+                                        )}
+                                    </form>
+                                </div>
+                            </div>
+
+                            {/* Actions Bar */}
+                            {!isPending && thread.messages.length > 2 && !value.trim() && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="flex items-center justify-between bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded-xl p-4 backdrop-blur-sm"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-green-500/20 rounded-full text-green-400">
+                                            <CheckCircle2 size={20} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-white font-medium">Generation Complete</h3>
+                                            <p className="text-white/40 text-sm">Review the structure above. Ready to deploy?</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => window.location.reload()}
+                                            className="px-4 py-2 text-sm text-white/60 hover:text-white transition-colors"
+                                        >
+                                            Discard
+                                        </button>
+                                        <button
+                                            onClick={handleSaveToDatabase}
+                                            disabled={saveStatus.loading}
+                                            className="px-6 py-2.5 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-lg shadow-lg shadow-green-500/20 hover:shadow-green-500/40 transition-all flex items-center gap-2 disabled:opacity-50"
+                                        >
+                                            {saveStatus.loading ? (
+                                                <Loader2 size={16} className="animate-spin" />
+                                            ) : (
+                                                <Save size={16} />
+                                            )}
+                                            {saveStatus.loading ? 'Saving...' : 'Save & Deploy'}
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {/* Success State */}
+                            <AnimatePresence>
+                                {saveStatus.success && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        className="mt-4 bg-green-500/10 border border-green-500/20 rounded-xl p-6 text-center"
+                                    >
+                                        <h3 className="text-xl font-bold text-white mb-2">🎉 Website Successfully Created!</h3>
+                                        <p className="text-white/60 mb-6">Your website is ready to view and edit.</p>
+                                        <div className="flex justify-center gap-4">
+                                            <a
+                                                href={`${process.env.NEXT_PUBLIC_DASHBOARD_URL}`}
+                                                className="px-6 py-3 bg-white text-black font-bold rounded-lg hover:bg-gray-100 transition-colors"
+                                            >
+                                                Go to Dashboard
+                                            </a>
+                                            <a
+                                                href={`${process.env.NEXT_PUBLIC_WEBSITE_URL}/${saveStatus.data?.slug}`}
+                                                target="_blank"
+                                                className="px-6 py-3 bg-white/10 border border-white/10 text-white font-bold rounded-lg hover:bg-white/20 transition-colors"
+                                            >
+                                                View Live Site
+                                            </a>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </main>
+
+            <HistorySidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
         </div>
     );
 }
